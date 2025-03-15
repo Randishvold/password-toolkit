@@ -634,85 +634,91 @@
         generatePassphraseBtn.addEventListener('click', generateSundanesePassphrase);
         
         function generateSundanesePassphrase() {
-            // 1. Definisikan fungsi calculatePassphraseEntropy terlebih dahulu
+            // Helper function untuk entropy calculation
             function calculatePassphraseEntropy(wordCount, dictionarySize, hasNumbers, hasCapitalization) {
                 let entropy = wordCount * Math.log2(dictionarySize); // Base entropy
                 
                 if (hasNumbers) {
-                    // Entropy dari posisi (sebelum/sesudah kata) dan nilai angka (0-999)
-                    entropy += Math.log2(2) + Math.log2(1000);
+                    entropy += Math.log2(2) + Math.log2(1000); // Posisi dan nilai angka
                 }
                 
                 if (hasCapitalization) {
-                    // Entropy dari kapitalisasi per kata
-                    entropy += wordCount * Math.log2(2);
+                    entropy += wordCount; // Satu bit per kata untuk kapitalisasi
                 }
                 
                 return entropy;
             }
         
-            const MINIMUM_ENTROPY = 60; // Bit
-            let finalPassphrase;
-            let entropy;
+            // Ambil parameter dari UI
+            const wordCount = parseInt(wordsSlider.value);
+            const separator = separatorSelect.value;
+            const includeNumbers = includeNumbersCheckbox.checked;
+            const capitalize = capitalizeCheckbox.checked;
             
-            do {
-                const wordCount = parseInt(wordsSlider.value);
-                const separator = separatorSelect.value;
-                const includeNumbers = includeNumbersCheckbox.checked;
-                const capitalize = capitalizeCheckbox.checked;
-                
-                // Gunakan crypto.getRandomValues untuk shuffling
-                const shuffledWords = [...sundaneseWords];
-                for (let i = shuffledWords.length - 1; i > 0; i--) {
+            // Generate kata-kata
+            const shuffledWords = [...sundaneseWords];
+            for (let i = shuffledWords.length - 1; i > 0; i--) {
+                const array = new Uint32Array(1);
+                crypto.getRandomValues(array);
+                const j = array[0] % (i + 1);
+                [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+            }
+            
+            let selectedWords = shuffledWords.slice(0, wordCount);
+            
+            // Kapitalisasi jika dipilih
+            if (capitalize) {
+                selectedWords = selectedWords.map(word => {
                     const array = new Uint32Array(1);
                     crypto.getRandomValues(array);
-                    const j = array[0] % (i + 1);
-                    [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
-                }
-                
-                let selectedWords = shuffledWords.slice(0, wordCount);
-                
-                if (capitalize) {
-                    selectedWords = selectedWords.map(word => {
-                        const array = new Uint32Array(1);
-                        crypto.getRandomValues(array);
-                        return array[0] % 2 === 0 ? 
-                            word.charAt(0).toUpperCase() + word.slice(1) : word;
-                    });
-                }
-                
-                if (includeNumbers) {
-                    const numPositions = Math.min(wordCount, Math.ceil(crypto.getRandomValues(new Uint32Array(1))[0] % 2 + 1));
-                    
-                    for (let i = 0; i < numPositions; i++) {
-                        const array = new Uint32Array(1);
-                        crypto.getRandomValues(array);
-                        const pos = array[0] % wordCount;
-                        const num = array[0] % 1000;
-                        
-                        const array2 = new Uint32Array(1);
-                        crypto.getRandomValues(array2);
-                        if (array2[0] % 2 === 0) {
-                            selectedWords[pos] = `${selectedWords[pos]}${num}`;
-                        } else {
-                            selectedWords[pos] = `${num}${selectedWords[pos]}`;
-                        }
-                    }
-                }
-                
-                finalPassphrase = selectedWords.join(separator);
-                
-                entropy = calculatePassphraseEntropy(
-                    wordCount,
-                    sundaneseWords.length,
-                    includeNumbers,
-                    capitalize
-                );
-                
-            } while (entropy < MINIMUM_ENTROPY);
+                    return array[0] % 2 === 0 ? 
+                        word.charAt(0).toUpperCase() + word.slice(1) : word;
+                });
+            }
             
+            // Tambahkan angka jika dipilih
+            if (includeNumbers) {
+                const numPositions = Math.min(wordCount, 2); // Maksimum 2 angka
+                const usedPositions = new Set();
+                
+                for (let i = 0; i < numPositions; i++) {
+                    let pos;
+                    do {
+                        const array = new Uint32Array(1);
+                        crypto.getRandomValues(array);
+                        pos = array[0] % wordCount;
+                    } while (usedPositions.has(pos));
+                    
+                    usedPositions.add(pos);
+                    
+                    const array = new Uint32Array(1);
+                    crypto.getRandomValues(array);
+                    const num = array[0] % 1000;
+                    
+                    const array2 = new Uint32Array(1);
+                    crypto.getRandomValues(array2);
+                    selectedWords[pos] = array2[0] % 2 === 0 ? 
+                        `${selectedWords[pos]}${num}` : 
+                        `${num}${selectedWords[pos]}`;
+                }
+            }
+            
+            // Gabungkan kata-kata dengan separator
+            const finalPassphrase = selectedWords.join(separator);
+            
+            // Hitung entropy final
+            const entropy = calculatePassphraseEntropy(
+                wordCount,
+                sundaneseWords.length,
+                includeNumbers,
+                capitalize
+            );
+            
+            // Update UI
             generatedPassphrase.value = finalPassphrase;
-            checkPassphraseStrength(finalPassphrase);
+            
+            // Log entropy untuk debugging
+            console.log(`Generated passphrase with entropy: ${entropy.toFixed(2)} bits`);
             
             return { passphrase: finalPassphrase, entropy };
         }
