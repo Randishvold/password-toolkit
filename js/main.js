@@ -47,22 +47,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Clear password setelah disalin
-    const copyButtons = document.querySelectorAll('[id^="copy-"]');
-    copyButtons.forEach(button => {
-        button.addEventListener('click', async (e) => {
-            const targetId = e.target.id.replace('copy-', '');
+    function handleCopy(targetId) {
+        return async function(e) {
+            e.preventDefault();
             const targetField = document.getElementById(`generated-${targetId}`);
             
+            if (!targetField || !targetField.value) {
+                console.log('No content to copy');
+                return;
+            }
+
             try {
-                await navigator.clipboard.writeText(targetField.value);
-                // Clear setelah delay
+                // Gunakan execCommand sebagai fallback jika Clipboard API tidak tersedia
+                if (!navigator.clipboard) {
+                    targetField.select();
+                    document.execCommand('copy');
+                    targetField.blur();
+                } else {
+                    await navigator.clipboard.writeText(targetField.value);
+                }
+
+                // Show success message
+                const messageElement = document.getElementById(`copy-${targetId}-message`);
+                if (messageElement) {
+                    messageElement.style.opacity = '1';
+                    setTimeout(() => {
+                        messageElement.style.opacity = '0';
+                    }, 2000);
+                }
+
+                // Clear after delay
                 setTimeout(() => {
                     targetField.value = '';
-                }, 30000); // Clear after 30 seconds
+                }, 30000);
             } catch (error) {
                 console.error('Copy failed:', error);
-                alert('Failed to copy to clipboard');
+                alert('Failed to copy to clipboard. Please try manually selecting and copying the text.');
             }
-        });
-    });
+        };
+    }
+
+    // Attach copy handlers
+    const copyPassword = document.getElementById('copy-password');
+    const copyPassphrase = document.getElementById('copy-passphrase');
+
+    if (copyPassword) {
+        copyPassword.addEventListener('click', handleCopy('password'));
+    }
+    if (copyPassphrase) {
+        copyPassphrase.addEventListener('click', handleCopy('passphrase'));
+    }
 });
