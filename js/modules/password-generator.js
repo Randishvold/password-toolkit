@@ -1,5 +1,5 @@
 // password-generator.js
-class PasswordGenerator {
+export class PasswordGenerator {
     constructor() {
         this.charset = {
             upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -62,5 +62,3 @@ class PasswordGenerator {
         return true;
     }
 }
-
-export default PasswordGenerator;

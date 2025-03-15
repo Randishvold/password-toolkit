@@ -1,5 +1,5 @@
 // passphrase-generator.js
-class PassphraseGenerator {
+export class PassphraseGenerator {
     constructor() {
         this.words = [
             "abah", "acan", "aceuk", "acuy", "ada", "aduh", "ahli", "aing",
@@ -61,5 +61,3 @@ class PassphraseGenerator {
         return entropy;
     }
 }
-
-export default PassphraseGenerator;

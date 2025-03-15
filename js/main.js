@@ -6,6 +6,8 @@ import { PerformanceOptimizer } from './performance-optimizer.js';
 import { PasswordGenerator } from './modules/password-generator.js';
 import { PassphraseGenerator } from './modules/passphrase-generator.js';
 import { helpers } from './utils/helpers.js';
+import { TabManager } from './utils/tab-manager.js';
+import { ThemeManager } from './utils/theme-manager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Inisialisasi managers
@@ -14,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const performanceOptimizer = new PerformanceOptimizer();
     const passwordGenerator = new PasswordGenerator();
     const passphraseGenerator = new PassphraseGenerator();
+    new TabManager();
+    new ThemeManager();
     
     // Register sensitive fields
     securityManager.registerSensitiveField(document.getElementById('password-input'));
