@@ -1,5 +1,5 @@
 // performance-optimizer.js
-class PerformanceOptimizer {
+export class PerformanceOptimizer {
     constructor() {
         this.debounceTimeout = null;
         this.throttleTimeout = null;

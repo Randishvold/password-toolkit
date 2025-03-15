@@ -1,5 +1,5 @@
 // strength-handler.js
-class PasswordStrengthHandler {
+export class PasswordStrengthHandler {
     constructor() {
         this.strengthMeter = document.getElementById('strength-meter');
         this.strengthLabel = document.getElementById('strength-label');

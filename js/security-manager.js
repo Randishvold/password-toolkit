@@ -1,5 +1,5 @@
 // security-manager.js
-class SecurityManager {
+export class SecurityManager {
     constructor(maxHistorySize = 10) {
         this.maxHistorySize = maxHistorySize;
         this.passwordHistory = new Set();

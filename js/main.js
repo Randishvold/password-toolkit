@@ -1,92 +1,76 @@
 // main.js
-import PasswordGenerator from './modules/password-generator.js';
-import PassphraseGenerator from './modules/passphrase-generator.js';
-import { validateInput } from './utils/validation.js';
-import { formatTime, calculateEntropy } from './utils/helpers.js';
+// main.js
+import { SecurityManager } from './security-manager.js';
+import { PasswordStrengthHandler } from './strength-handler.js';
+import { PerformanceOptimizer } from './performance-optimizer.js';
+import { PasswordGenerator } from './modules/password-generator.js';
+import { PassphraseGenerator } from './modules/passphrase-generator.js';
+import { helpers } from './utils/helpers.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inisialisasi managers
-    const passwordGenerator = new PasswordGenerator();
-    const passphraseGenerator = new PassphraseGenerator();
+  // Inisialisasi managers
     const strengthHandler = new PasswordStrengthHandler();
     const securityManager = new SecurityManager();
     const performanceOptimizer = new PerformanceOptimizer();
+    const passwordGenerator = new PasswordGenerator();
+    const passphraseGenerator = new PassphraseGenerator();
     
     // Register sensitive fields
     securityManager.registerSensitiveField(document.getElementById('password-input'));
     securityManager.registerSensitiveField(document.getElementById('generated-password'));
     securityManager.registerSensitiveField(document.getElementById('generated-passphrase'));
     
-  
-    function setupEventHandlers() {
-        const handlers = {
-            'copy-password': handleCopy,
-            'generate-password': handleGenerate,
-            'password-input': handleInput
-        };
-    
-        Object.entries(handlers).forEach(([id, handler]) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('click', (e) => {
-                    try {
-                        handler(e);
-                    } catch (error) {
-                        console.error(`Error in ${id} handler:`, error);
-                        handleError(error);
-                    }
-                });
-            }
-        });
-    }
-    
-    function handleError(error) {
-        // Centralized error handling
-        const errorMessages = {
-            ClipboardError: 'Failed to copy to clipboard. Please try manually.',
-            ValidationError: 'Invalid input. Please check your input and try again.',
-            GenerationError: 'Failed to generate password. Please try again.',
-            default: 'An unexpected error occurred. Please try again.'
-        };
-    
-        const message = errorMessages[error.name] || errorMessages.default;
-        alert(message);
-    }
-
     // Password input handler dengan debounce
     const passwordInput = document.getElementById('password-input');
     passwordInput.addEventListener('input', () => {
-        performanceOptimizer.debounce(() => {
-            strengthHandler.updateStrengthIndicator(passwordInput.value);
-        }, 300);
+      performanceOptimizer.debounce(() => {
+        strengthHandler.updateStrengthIndicator(passwordInput.value);
+      }, 300);
     });
-
-    // Generate password dengan password history check
+    
+    // Event handlers untuk generate password
     const generatePasswordBtn = document.getElementById('generate-password');
     generatePasswordBtn.addEventListener('click', () => {
-        performanceOptimizer.throttle(() => {
-            try {
-                const newPassword = generatePassword(/* ... params ... */);
-                
-                if (securityManager.isPasswordReused(newPassword)) {
-                    // Generate ulang jika password sudah pernah digunakan
-                    generatePasswordBtn.click();
-                    return;
-                }
-
-                securityManager.addToHistory(newPassword);
-                document.getElementById('generated-password').value = newPassword;
-                
-            } catch (error) {
-                console.error('Password generation error:', error);
-                alert('Failed to generate password. Please try again.');
-            }
-        }, 1000);
+      const options = {
+        length: parseInt(document.getElementById('password-length').value),
+        includeUpper: document.getElementById('include-uppercase').checked,
+        includeLower: document.getElementById('include-lowercase').checked,
+        includeNumbers: document.getElementById('include-numbers').checked,
+        includeSymbols: document.getElementById('include-symbols').checked
+      };
+      
+      try {
+        const newPassword = passwordGenerator.generatePassword(options);
+        document.getElementById('generated-password').value = newPassword;
+      } catch (error) {
+        console.error('Password generation error:', error);
+        alert(error.message);
+      }
     });
-
+    
+    // Event handlers untuk copy
+    const copyButtons = document.querySelectorAll('[id^="copy-"]');
+    copyButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const targetId = e.target.id.replace('copy-', '');
+        const targetField = document.getElementById(`generated-${targetId}`);
+        
+        try {
+          await navigator.clipboard.writeText(targetField.value);
+          // Clear setelah delay
+          setTimeout(() => {
+            targetField.value = '';
+          }, 30000);
+        } catch (error) {
+          console.error('Copy failed:', error);
+          alert('Failed to copy to clipboard');
+        }
+      });
+    });
+    
     // Clear sensitive data saat tab/window ditutup
     window.addEventListener('beforeunload', () => {
-        securityManager.clearSensitiveData();
+      securityManager.clearSensitiveData();
     });
 
     // Clear password setelah disalin
