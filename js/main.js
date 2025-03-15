@@ -9,6 +9,42 @@ document.addEventListener('DOMContentLoaded', () => {
     securityManager.registerSensitiveField(document.getElementById('password-input'));
     securityManager.registerSensitiveField(document.getElementById('generated-password'));
     securityManager.registerSensitiveField(document.getElementById('generated-passphrase'));
+    
+  
+    function setupEventHandlers() {
+        const handlers = {
+            'copy-password': handleCopy,
+            'generate-password': handleGenerate,
+            'password-input': handleInput
+        };
+    
+        Object.entries(handlers).forEach(([id, handler]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('click', (e) => {
+                    try {
+                        handler(e);
+                    } catch (error) {
+                        console.error(`Error in ${id} handler:`, error);
+                        handleError(error);
+                    }
+                });
+            }
+        });
+    }
+    
+    function handleError(error) {
+        // Centralized error handling
+        const errorMessages = {
+            ClipboardError: 'Failed to copy to clipboard. Please try manually.',
+            ValidationError: 'Invalid input. Please check your input and try again.',
+            GenerationError: 'Failed to generate password. Please try again.',
+            default: 'An unexpected error occurred. Please try again.'
+        };
+    
+        const message = errorMessages[error.name] || errorMessages.default;
+        alert(message);
+    }
 
     // Password input handler dengan debounce
     const passwordInput = document.getElementById('password-input');

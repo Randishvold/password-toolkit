@@ -23,6 +23,23 @@ class PasswordStrengthHandler {
             3: 'Strong',
             4: 'Very Strong'
         };
+        
+        // Tambahkan pengecekan ketersediaan zxcvbn
+        if (typeof zxcvbn === 'undefined') {
+            this.handleZxcvbnMissing();
+        }
+    }
+    
+    handleZxcvbnMissing() {
+        console.error('zxcvbn library not loaded');
+        this.feedback.innerHTML = `
+            <p class="text-red-600">
+                ❌ Password strength checker is currently unavailable. 
+                Using fallback strength calculation.
+            </p>
+        `;
+        // Implement fallback strength checking
+        this.useFallbackChecker = true;
     }
 
     updateStrengthIndicator(password) {
@@ -30,6 +47,10 @@ class PasswordStrengthHandler {
             if (!password) {
                 this.resetIndicators();
                 return;
+            }
+            
+            if (this.useFallbackChecker) {
+                return this.fallbackStrengthCheck(password);
             }
 
             // Gunakan zxcvbn untuk analisis
@@ -46,6 +67,13 @@ class PasswordStrengthHandler {
             console.error('Error in strength calculation:', error);
             this.handleError(error);
         }
+    }
+    
+    fallbackStrengthCheck(password) {
+        // Implementasi pengecekan strength sederhana sebagai fallback
+        const result = enhancedStrengthCheck(password);
+        this.updateVisualStrength(result.score);
+        return result;
     }
 
     updateVisualStrength(score) {

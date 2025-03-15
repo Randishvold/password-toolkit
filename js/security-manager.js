@@ -39,7 +39,13 @@ class SecurityManager {
         this.sensitiveFields.forEach(field => {
             if (field && typeof field.value !== 'undefined') {
                 field.value = '';
+                // Tambahan: memastikan garbage collection
+                if (field.dataset) {
+                    field.dataset.lastValue = '';
+                }
             }
         });
+        // Clear history juga saat clear data
+        this.passwordHistory.clear();
     }
 }
