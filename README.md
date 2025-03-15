@@ -68,6 +68,6 @@ Password Toolkit adalah aplikasi web interaktif yang menyediakan seperangkat ala
 
 ## 🙏 Kredit
 
-Dikembangkan dengan [Poe App Creator](https://poe.com/App-Creator)
+Dikembangkan dengan [Poe App Creator](https://poe.com/App-Creator) & [Github copilot free](https://github.com/features/copilot)
 
 > readme ini digenerate oleh github copilot
