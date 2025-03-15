@@ -1,10 +1,17 @@
 // main.js
+import PasswordGenerator from './modules/password-generator.js';
+import PassphraseGenerator from './modules/passphrase-generator.js';
+import { validateInput } from './utils/validation.js';
+import { formatTime, calculateEntropy } from './utils/helpers.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi managers
+    const passwordGenerator = new PasswordGenerator();
+    const passphraseGenerator = new PassphraseGenerator();
     const strengthHandler = new PasswordStrengthHandler();
     const securityManager = new SecurityManager();
     const performanceOptimizer = new PerformanceOptimizer();
-
+    
     // Register sensitive fields
     securityManager.registerSensitiveField(document.getElementById('password-input'));
     securityManager.registerSensitiveField(document.getElementById('generated-password'));
