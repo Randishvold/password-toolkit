@@ -322,9 +322,23 @@
         const copyPassphraseMessage = document.getElementById('copy-passphrase-message');
         
         // Sundanese word list (common words)
-        const sundaneseWords = [
-            "abdi", "acan", "aceuk", "acuk", "adab", "adat", "adi", "ajar", "ajeg", "aji", "akang", "alim", "alus","ambu", "amis", "anak", "aneh", "angin", "anjing", "antos", "anu", "anyar", "apal", "api", "asih", "asup", "ati", "awak", "awas", "awet", "ayeuna", "babad", "babari", "badag", "bade", "bageur", "bagja", "baheula", "balap", "balik", "bambang", "bandung", "bapa", "barang", "basa", "batu", "bawa", "bayar", "begang", "beja", "beresih", "beuki", "beungeut", "beurang", "beureum", "beurit", "biasa", "bisa", "bitik", "bogoh", "bojo", "bola", "bolay", "bolu", "buku", "bulan", "bungah", "burung", "cadas", "calik", "candi", "catur", "cicing", "cikal", "cikarang", "cileungcang", "cilok", "cimahi", "ciong", "cinta", "coba", "cokot", "daek", "dagang", "dahar", "dapur", "datang", "deok", "deuh", "dimana", "dipake", "diri", "ditu", "dina", "duka", "dulang",  "duriat", "eleh", "emam", "embung", "emut", "endah", "engkang", "entos", "euweuh", "galih", "ganas", "gancang", "ganti", "gawe", "gede", "gelo", "geulis", "geureuha", "gigir", "goong", "goreng", "gunung", "gusti", "hadang", "hade", "hayang", "hideung", "hirup", "hoyong", "hujan", "imah", "indung", "inget", "isuk", "itung", "jalan", "jampana", "janten", "jembar", "jimat", "jogo", "jual", "kadieu", "kahiji", "kaler", "kalong", "kamari", "kana", "kanggo", "kaos", "kapur", "kari", "kasep", "kataji", "kawih", "kawung", "kayang", "kecap", "kembang", "kenging", "keun", "kieu", "kitu", "koneng", "koper", "kopi", "kotor", "kudu", "kueh", "kula", "kuliah", "kulub", "kuning", "kuring", "aduh", "aing", "ajag", "akal", "aki", "aku", "ambek", "ameng", "ancep", "anjeun", "antep", "antuk", "arah", "arep", "ari", "asli", "atawa", "awi", "aya", "ayun", "babah", "babar", "babat", "baca", "bagi", "bagus", "baham", "baja", "baju", "bakal", "bala", "balad", "balur", "bambu", "bancuh", "banda", "bandel", "bangga", "banget", "bangun", "bantal", "bantu", "bara", "barag", "bareto", "bari", "baruk", "basah", "basi", "bata", "batin", "batur", "bau", "bayah", "beak", "beas", "beda", "begja", "bekel", "belah", "bela", "bener", "bengkok", "bentang", "bere", "beres", "beunang", "beusi", "beuteung", "beuti", "biawak", "bibi", "bicara", "bilih", "bingah", "bingung", "birit", "biuk", "boa", "bobok", "bobot", "boga", "bohong", "bokong", "bolot", "bongan", "bongkok", "bongoh", "bosen", "botol", "boyong", "buah", "buang", "buat", "bubu", "budak", "budi", "bujal", "bujang", "bukit", "bukti", "buleud", "bulu", "bumi", "buncis", "bunder", "bunga", "buni", "bunuh", "buntut", "bupati", "burit", "buru", "buruan", "busiat", "butuh", "buyut", "cabe", "cag", "cai", "caket", "campur", "cancut", "cangkeul", "cape", "capetang", "caram", "carek", "carita", "carios", "cawet", "cecekelan", "cekas", "cekel", "celeng", "cempor", "cengkat", "centang", "cepil", "cerah", "ciga", "cikopi", "cileuh", "cileungsi", "cipanas", "cipatat", "cirian", "ciroyom", "cisalak", "cisarua", "ciwidey", "cobian", "cocok", "cukup", "culametan", "culik", "cuma", "cumi", "cunduk", "cupu", "curuk", "dago", "daun", "dayeuh", "deet", "degel", "dehem", "dekeut", "delik", "demi", "dengdek", "dengki", "depa", "depan", "deres", "deui", "dewek", "dieu", "dines", "dingding", "dinten", "dipayun", "diraksukan", "doa", "doktor", "dongeng", "doraka", "dosa", "dugi", "dumasar", "dunya", "dupak", "duruk", "duta", "eceu", "ecok", "edan", "eureun", "gajah", "gajih", "gampang", "gapura", "garam", "garasi", "garetek", "garing", "garo", "garong", "garut", "gawir", "gaya", "gayor", "gebleg", "gebog", "gedang", "gedean", "gedong", "geger", "geget", "gejlig", "gelap", "gelut", "gembul", "genah", "genep", "gentos", "geugeut", "geuleuh", "geumpeur", "geuneuk", "geunjleung", "geutah", "gibeg", "gibleg", "gila", "gilang", "gimir", "gina", "gingsir", "girang", "giri", "giridig", "gitek", "giuk", "goblog", "godeg", "gogog", "golek", "golosor", "gombloh", "gondok", "gonggong", "gontok", "gorowok", "gosip", "gugah", "gugunungan", "guha", "gula", "gulang-gilek", "guling", "guludug", "gumbira", "gundam", "gundul", "gunem", "guntreng", "gupay", "guru", "gusar", "guyang", "guyon", "hajat", "hakim", "halang", "halimun", "halodo", "hambar", "hampura", "hampang", "hancur", "handap", "hanyir", "hapeuk", "hapunten", "hara", "haratis", "hareudang", "hareup", "harga", "hariwang", "harti", "harus", "haseum", "hata", "hatur" 
-        ];
+        let sundaneseWords = [];
+        
+        async function loadSundaneseWords() {
+            try {
+                const response = await fetch('js/data/sundanese-words.json');
+                if (!response.ok) throw new Error('Failed to load wordlist');
+                const data = await response.json();
+                sundaneseWords = data.words; // Update array yang sudah ada
+            } catch (error) {
+                console.error('Error loading wordlist:', error);
+                // Fallback ke array minimal jika gagal load
+                sundaneseWords = ["abdi", "alus", "bageur", "caang", "daek"];
+            }
+        }
+
+        // Panggil fungsi load saat dokumen dimuat
+        document.addEventListener('DOMContentLoaded', loadSundaneseWords);
 
         // Tab switching logic
         function resetAllTabs() {
@@ -680,7 +694,11 @@
         // Generate Sundanese passphrase
         generatePassphraseBtn.addEventListener('click', generateSundanesePassphrase);
         
-        function generateSundanesePassphrase() {
+        async function generateSundanesePassphrase() {
+            // Pastikan wordlist sudah dimuat
+            if (sundaneseWords.length === 0) {
+                await loadSundaneseWords();
+            }
             // Helper function untuk entropy calculation
             function calculatePassphraseEntropy(wordCount, dictionarySize, hasNumbers, hasCapitalization) {
                 let entropy = wordCount * Math.log2(dictionarySize); // Base entropy
@@ -697,7 +715,7 @@
             }
         
             // Ambil parameter dari UI
-            const wordCount = parseInt(wordsSlider.value);
+            const wordCount = parseInt(document.getElementById('words-slider').value);
             const separator = separatorSelect.value;
             const includeNumbers = includeNumbersCheckbox.checked;
             const capitalize = capitalizeCheckbox.checked;
