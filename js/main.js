@@ -8,6 +8,7 @@ import { PassphraseGenerator } from './modules/passphrase-generator.js';
 import { helpers } from './utils/helpers.js';
 import { TabManager } from './utils/tab-manager.js';
 import { ThemeManager } from './utils/theme-manager.js';
+import { VisibilityToggle } from './utils/visibility-toggle.js'
 
 document.addEventListener('DOMContentLoaded', () => {
   // Inisialisasi managers
@@ -17,7 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordGenerator = new PasswordGenerator();
     const passphraseGenerator = new PassphraseGenerator();
     new TabManager();
-    new ThemeManager();
+    new VisibilityToggle();
+    const themeManager = new ThemeManager();
+    
+    themeManager.initialize();
     
     // Register sensitive fields
     securityManager.registerSensitiveField(document.getElementById('password-input'));
