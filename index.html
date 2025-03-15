@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0">
     <title>Password Strength Checker & Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -412,6 +414,90 @@
             crackTime.textContent = timeToGuess;
         }
         
+        function enhancedStrengthCheck(password) {
+            let score = 0;
+            const feedback = [];
+            
+            // 1. Panjang
+            if (password.length >= 16) score += 2;
+            else if (password.length >= 12) score += 1;
+            
+            // 2. Kompleksitas
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasDigit = /\d/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+            
+            // 3. Distribusi karakter
+            const charDistribution = {};
+            for (const char of password) {
+                charDistribution[char] = (charDistribution[char] || 0) + 1;
+            }
+            
+            const maxRepetition = Math.max(...Object.values(charDistribution));
+            if (maxRepetition > 3) {
+                feedback.push("Terlalu banyak pengulangan karakter");
+                score -= 1;
+            }
+            
+            // 4. Entropy calculation
+            const possibleChars = (hasLower ? 26 : 0) +
+                                 (hasUpper ? 26 : 0) +
+                                 (hasDigit ? 10 : 0) +
+                                 (hasSpecial ? 33 : 0);
+            
+            const entropy = Math.log2(Math.pow(possibleChars, password.length));
+            
+            // 5. Final scoring
+            if (entropy >= 80) score += 2;
+            else if (entropy >= 60) score += 1;
+            
+            return {
+                score: Math.min(5, score),
+                entropy: entropy,
+                feedback: feedback
+            };
+        }
+        
+        function updateStrengthDisplay(result) {
+            const { score, entropy, feedback } = result;
+            
+            // Update strength meter
+            const strengthMeter = document.getElementById('strength-meter');
+            const strengthLabel = document.getElementById('strength-label');
+            
+            // Tambahkan informasi entropy
+            const entropyDisplay = document.createElement('div');
+            entropyDisplay.innerHTML = `
+                <div class="text-sm mt-2">
+                    <span class="font-medium">Entropy:</span> 
+                    ${entropy.toFixed(1)} bits
+                    <span class="text-xs text-gray-500">
+                        (${getEntropyRating(entropy)})
+                    </span>
+                </div>
+            `;
+            
+            // Tambahkan rekomendasi spesifik
+            const recommendationsDisplay = document.createElement('div');
+            recommendationsDisplay.innerHTML = `
+                <div class="mt-2 p-2 bg-gray-100 rounded">
+                    <h4 class="font-medium">Rekomendasi:</h4>
+                    <ul class="list-disc pl-4 text-sm">
+                        ${generateRecommendations(result)}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function getEntropyRating(entropy) {
+            if (entropy < 45) return "Sangat Lemah";
+            if (entropy < 60) return "Lemah";
+            if (entropy < 80) return "Sedang";
+            if (entropy < 100) return "Kuat";
+            return "Sangat Kuat";
+        }
+        
         function updateStrengthMeter(score, labelText, feedbackMessages, colorClass) {
             // Remove previous color classes
             strengthMeter.className = 'h-2.5 rounded-full transition-all duration-300';
@@ -539,6 +625,29 @@
         generatePassphraseBtn.addEventListener('click', generateSundanesePassphrase);
         
         function generateSundanesePassphrase() {
+         // Tambahkan entropy validator
+          function calculatePassphraseEntropy(wordCount, dictionarySize, hasNumbers, hasCapitalization) {
+              let entropy = wordCount * Math.log2(dictionarySize); // Base entropy
+              
+              if (hasNumbers) {
+                  // Entropy dari posisi (sebelum/sesudah kata) dan nilai angka
+                  entropy += Math.log2(2) + Math.log2(1000);
+              }
+              
+              if (hasCapitalization) {
+                  // Entropy dari kapitalisasi per kata
+                  entropy += wordCount * Math.log2(2);
+              }
+              
+              return entropy;
+          }
+      
+          // Implementasi minimum entropy threshold
+          const MINIMUM_ENTROPY = 60; // Bit
+          let passphrase;
+          let entropy;
+          
+          do {
             const wordCount = parseInt(wordsSlider.value);
             const separator = separatorSelect.value;
             const includeNumbers = includeNumbersCheckbox.checked;
@@ -585,6 +694,16 @@
             
             // Check and display the strength
             checkPassphraseStrength(passphrase);
+            passphrase = generateInitialPassphrase();
+        
+            entropy = calculatePassphraseEntropy(
+                wordsSlider.value,
+                sundaneseWords.length,
+                includeNumbersCheckbox.checked,
+                capitalizeCheckbox.checked
+            );
+          } while (entropy < MINIMUM_ENTROPY);
+          return { passphrase, entropy };
         }
         
         function checkPassphraseStrength(passphrase) {
@@ -650,34 +769,51 @@
             generatedPassword.value = password;
         });
         
+        function hasCommonPatterns(password) {
+            const patterns = [
+                /^.*(?:qwerty|asdfgh|zxcvbn).*$/i,  // Pola keyboard
+                /^.*(?:123321|987789|456654).*$/,    // Pola angka berulang
+                /(.)\1{2,}/,                         // Karakter berulang 3+ kali
+                /(?:abc|bcd|cde|def|efg|xyz).*$/i,   // Urutan alfabet
+                /(?:321|432|543|654|765|876|987).*$/ // Urutan angka terbalik
+            ];
+            
+            return patterns.some(pattern => pattern.test(password));
+        }
+        
         function generatePassword(length, includeUpper, includeLower, includeNumbers, includeSymbols) {
-            let chars = '';
-            if (includeUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if (includeLower) chars += 'abcdefghijklmnopqrstuvwxyz';
-            if (includeNumbers) chars += '0123456789';
-            if (includeSymbols) chars += '!@#$%^&*()_-+=<>?/{}~';
-            
-            // Ensure we have at least one character from each selected type
-            let password = '';
-            if (includeUpper) password += getRandomChar('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-            if (includeLower) password += getRandomChar('abcdefghijklmnopqrstuvwxyz');
-            if (includeNumbers) password += getRandomChar('0123456789');
-            if (includeSymbols) password += getRandomChar('!@#$%^&*()_-+=<>?/{}~');
-            
-            // Fill the rest of the password with random characters
-            while (password.length < length) {
-                password += getRandomChar(chars);
-            }
-            
-            // Shuffle the password characters
-            return shuffleString(password);
+            let password;
+            do {
+              let chars = '';
+              if (includeUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+              if (includeLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+              if (includeNumbers) chars += '0123456789';
+              if (includeSymbols) chars += '!@#$%^&*()_-+=<>?/{}~';
+              
+              // Ensure we have at least one character from each selected type
+              let password = '';
+              if (includeUpper) password += getRandomChar('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+              if (includeLower) password += getRandomChar('abcdefghijklmnopqrstuvwxyz');
+              if (includeNumbers) password += getRandomChar('0123456789');
+              if (includeSymbols) password += getRandomChar('!@#$%^&*()_-+=<>?/{}~');
+              
+              // Fill the rest of the password with random characters
+              while (password.length < length) {
+                  password += getRandomChar(chars);
+              }
+              
+              // Shuffle the password characters
+              return shuffleString(password);
+              password = generateInitialPassword();
+            } while (hasCommonPatterns(password));
+          return password;
         }
         
         function getRandomChar(characters) {
-            const array = new Uint32Array(1);
-            crypto.getRandomValues(array);
-            return characters.charAt(array[0] % characters.length);
-        }
+          const array = new Uint32Array(1);
+          crypto.getRandomValues(array);
+          return characters.charAt(array[0] % characters.length);
+      }
         
         function shuffleString(str) {
             const array = str.split('');
