@@ -634,6 +634,23 @@
         generatePassphraseBtn.addEventListener('click', generateSundanesePassphrase);
         
         function generateSundanesePassphrase() {
+            // 1. Definisikan fungsi calculatePassphraseEntropy terlebih dahulu
+            function calculatePassphraseEntropy(wordCount, dictionarySize, hasNumbers, hasCapitalization) {
+                let entropy = wordCount * Math.log2(dictionarySize); // Base entropy
+                
+                if (hasNumbers) {
+                    // Entropy dari posisi (sebelum/sesudah kata) dan nilai angka (0-999)
+                    entropy += Math.log2(2) + Math.log2(1000);
+                }
+                
+                if (hasCapitalization) {
+                    // Entropy dari kapitalisasi per kata
+                    entropy += wordCount * Math.log2(2);
+                }
+                
+                return entropy;
+            }
+        
             const MINIMUM_ENTROPY = 60; // Bit
             let finalPassphrase;
             let entropy;
