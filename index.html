@@ -7,6 +7,12 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0">
     <title>Password Strength Checker & Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tambahkan sebelum script utama -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+    <script src="js/strength-handler.js"></script>
+    <script src="js/security-manager.js"></script>
+    <script src="js/performance-optimizer.js"></script>
+    <script src="js/main.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -19,6 +25,12 @@
             }
         }
     </script>
+    <style>
+      /* Tambahkan jika belum ada */
+      .transition-all {
+          transition: all 0.3s ease;
+      }
+    </style>
 </head>
 <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200 transition-colors duration-200">
     <!-- Main container -->
